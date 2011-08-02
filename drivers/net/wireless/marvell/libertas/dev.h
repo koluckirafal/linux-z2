@@ -100,9 +100,10 @@ struct lbs_private {
 	void *card;
 	bool iface_running;
 	u8 is_polling; /* host has to poll the card irq */
+	bool suspend_iface_status;
 	u8 fw_ready;
 	u8 surpriseremoved;
-	u8 setup_fw_on_resume;
+	u8 disable_on_suspend;
 	int (*hw_host_to_card) (struct lbs_private *priv, u8 type, u8 *payload, u16 nb);
 	void (*reset_card) (struct lbs_private *priv);
 	int (*power_save) (struct lbs_private *priv);
