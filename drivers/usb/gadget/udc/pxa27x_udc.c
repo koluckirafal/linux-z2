@@ -35,6 +35,8 @@
 #include <linux/usb/gadget.h>
 #include <linux/usb/phy.h>
 
+#include <asm/unaligned.h>
+
 #include "pxa27x_udc.h"
 
 /*
@@ -863,7 +865,7 @@ static void nuke(struct pxa_ep *ep, int status)
  */
 static int read_packet(struct pxa_ep *ep, struct pxa27x_request *req)
 {
-	u32 *buf;
+	u32 *buf, v;
 	int bytes_ep, bufferspace, count, i;
 
 	bytes_ep = ep_count_bytes_remain(ep);
@@ -877,8 +879,11 @@ static int read_packet(struct pxa_ep *ep, struct pxa27x_request *req)
 	else /* zlp */
 		count = 0;
 
-	for (i = count; i > 0; i -= 4)
-		*buf++ = udc_ep_readl(ep, UDCDR);
+	for (i = count; i > 0; i -= 4) {
+		v = udc_ep_readl(ep, UDCDR);
+		put_unaligned(v, buf);
+		buf++;
+	}
 	req->req.actual += count;
 
 	ep_write_UDCCSR(ep, UDCCSR_PC);
@@ -902,7 +907,7 @@ static int write_packet(struct pxa_ep *ep, struct pxa27x_request *req,
 			unsigned int max)
 {
 	int length, count, remain, i;
-	u32 *buf;
+	u32 *buf, v;
 	u8 *buf_8;
 
 	buf = (u32 *)(req->req.buf + req->req.actual);
@@ -913,8 +918,11 @@ static int write_packet(struct pxa_ep *ep, struct pxa27x_request *req,
 
 	remain = length & 0x3;
 	count = length & ~(0x3);
-	for (i = count; i > 0 ; i -= 4)
-		udc_ep_writel(ep, UDCDR, *buf++);
+	for (i = count; i > 0 ; i -= 4) {
+		v = get_unaligned(buf);
+		udc_ep_writel(ep, UDCDR, v);
+		buf++;
+	}
 
 	buf_8 = (u8 *)buf;
 	for (i = remain; i > 0; i--)
