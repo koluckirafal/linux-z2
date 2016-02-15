@@ -954,6 +954,7 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 dtb-$(CONFIG_ARCH_ZX) += zx296702-ad1.dtb
 dtb-$(CONFIG_ARCH_ASPEED) += aspeed-bmc-opp-palmetto.dtb \
 	aspeed-ast2500-evb.dtb
+dtb-$(CONFIG_PXA27x) += zipit-z2.dtb
 endif
 
 dtstree		:= $(srctree)/$(src)

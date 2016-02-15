@@ -54,8 +54,8 @@
 			reg = <0x40e00000 0x10000>;
 			gpio-controller;
 			#gpio-cells = <0x2>;
-			interrupts = <10>;
-			interrupt-names = "gpio_mux";
+			interrupts = <8>, <9>, <10>;
+			//interrupt-names = "gpio_mux";
 			interrupt-controller;
 			#interrupt-cells = <0x2>;
 			ranges;
@@ -132,6 +132,14 @@
 			dmas = <&pdma 21 3
 				&pdma 22 3>;
 			dma-names = "rx", "tx";
+			status = "disabled";
+		};
+
+		i2s: pxa2xx-i2s@40400000 {
+			compatible = "mrvl,pxa2xx-i2s";
+			reg = <0x40400000 84>;
+			interrupts = <13>;
+			clocks = <&clks CLK_I2S>;
 			status = "disabled";
 		};
 
