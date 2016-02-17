@@ -180,6 +180,68 @@ static struct snd_soc_ops asoc_simple_card_ops = {
 	.hw_params = asoc_simple_card_hw_params,
 };
 
+static struct snd_soc_jack simple_card_hp_jack;
+static struct snd_soc_jack_pin simple_card_hp_jack_pins[] = {
+	{
+		.pin = "Headphones",
+		.mask = SND_JACK_HEADPHONE,
+	},
+	{
+		.pin = "Speaker",
+		.mask = SND_JACK_HEADPHONE,
+		.invert = 1,
+	}
+};
+static struct snd_soc_jack_gpio simple_card_hp_jack_gpio = {
+	.name = "Headphone detection",
+	.report = SND_JACK_HEADPHONE,
+	.debounce_time = 150,
+};
+
+static struct snd_soc_jack simple_card_mic_jack;
+static struct snd_soc_jack_pin simple_card_mic_jack_pins[] = {
+	{
+		.pin = "Mic Jack",
+		.mask = SND_JACK_MICROPHONE,
+	},
+};
+static struct snd_soc_jack_gpio simple_card_mic_jack_gpio = {
+	.name = "Mic detection",
+	.report = SND_JACK_MICROPHONE,
+	.debounce_time = 150,
+};
+
+static int __asoc_simple_card_dai_init(struct snd_soc_dai *dai,
+				       struct asoc_simple_dai *set)
+{
+	int ret;
+
+	if (set->sysclk) {
+		ret = snd_soc_dai_set_sysclk(dai, 0, set->sysclk, 0);
+		if (ret && ret != -ENOTSUPP) {
+			dev_err(dai->dev, "simple-card: set_sysclk error\n");
+			goto err;
+		}
+	}
+
+	if (set->slots) {
+		ret = snd_soc_dai_set_tdm_slot(dai,
+					       set->tx_slot_mask,
+					       set->rx_slot_mask,
+						set->slots,
+						set->slot_width);
+		if (ret && ret != -ENOTSUPP) {
+			dev_err(dai->dev, "simple-card: set_tdm_slot error\n");
+			goto err;
+		}
+	}
+
+	ret = 0;
+
+err:
+	return ret;
+}
+
 static int asoc_simple_card_dai_init(struct snd_soc_pcm_runtime *rtd)
 {
 	struct simple_card_data *priv =	snd_soc_card_get_drvdata(rtd->card);
