@@ -88,7 +88,11 @@ static struct snd_soc_jack hs_jack;
 /* Headset jack detection DAPM pins */
 static struct snd_soc_jack_pin hs_jack_pins[] = {
 	{
-		.pin	= "Mic Jack",
+		.pin	= "Mic Jack Headset",
+		.mask	= SND_JACK_MICROPHONE,
+	},
+	{
+		.pin	= "Mic Jack Dock",
 		.mask	= SND_JACK_MICROPHONE,
 	},
 	{
@@ -116,7 +120,8 @@ static struct snd_soc_jack_gpio hs_jack_gpios[] = {
 /* z2 machine dapm widgets */
 static const struct snd_soc_dapm_widget wm8750_dapm_widgets[] = {
 	SND_SOC_DAPM_HP("Headphone Jack", NULL),
-	SND_SOC_DAPM_MIC("Mic Jack", NULL),
+	SND_SOC_DAPM_MIC("Mic Jack Headset", NULL),
+	SND_SOC_DAPM_MIC("Mic Jack Dock", NULL),
 	SND_SOC_DAPM_SPK("Ext Spk", NULL),
 
 	/* headset is a mic and mono headphone */
@@ -134,9 +139,13 @@ static const struct snd_soc_dapm_route audio_map[] = {
 	{"Ext Spk", NULL , "ROUT2"},
 	{"Ext Spk", NULL , "LOUT2"},
 
-	/* mic is connected to R input 2 - with bias */
+	/* headset mic is connected to R input 2 - with bias */
 	{"RINPUT2", NULL, "Mic Bias"},
-	{"Mic Bias", NULL, "Mic Jack"},
+	{"Mic Bias", NULL, "Mic Jack Headset"},
+
+	/* dock mic is connected to L input 2 - with bias */
+	{"LINPUT2", NULL, "Mic Bias"},
+	{"Mic Bias", NULL, "Mic Jack Dock"},
 };
 
 /*
